@@ -23,7 +23,7 @@ isValidSubtractive = function(subtractor, subtractee) {
                     decimals.indexOf(subtractor) === quinarys.indexOf(subtractee) ||
                     decimals.indexOf(subtractee) === decimals.indexOf(subtractor) + 1
                 )
-    )
+    );
 
 };
 
@@ -70,6 +70,11 @@ validateNumeral = function(numeral) {
             nextChar = numeral[i+1] || null,
             thirdChar = numeral[i+2] || null;
 
+        //not a digit
+        if(!symbolOrder.contains(thisChar)) {
+            return false;
+        }
+
         //double quinaries (VV)
         if (quinarys.contains(thisChar) && thisChar === nextChar) {
             return false;
@@ -115,6 +120,9 @@ convertToRoman = function(numeral) {
     decimals.forEach(function(decimal) {
         var howMany = numeral.lastIndexOf(decimal) - numeral.indexOf(decimal) + 1;
 
+        if (decimal === decimals[decimals.length - 1]) {
+            return numeral;
+        }
 
         while (howMany >= 4) {
             var nextDecimal = decimals[decimals.indexOf(decimal) + 1],
@@ -136,21 +144,21 @@ convertToRoman = function(numeral) {
         }
     });
 
-    return numeral
+    return numeral;
 };
 
-var addNumeral = function(x, y) {
+addNumeral = function(x, y) {
     var x = x.split(''),
         y = y.split(''),
         xy;
 
     if (!validateNumeral(x)) {
-        console.log(x.join('') + ' is not a valid numeral.');
+        alert(x.join('') + ' is not a valid numeral.');
         return false;
     }
 
     if (!validateNumeral(y)) {
-        console.log(y.join('') + ' is not a valid numeral.');
+        alert(y.join('') + ' is not a valid numeral.');
         return false;
     }
 
@@ -159,5 +167,64 @@ var addNumeral = function(x, y) {
     return convertToRoman(xy.sort(romanSort)).join('');
 };
 
-console.log(addNumeral('DL', 'IV'));
+subtractNumeral = function(val1, val2) {
+    var x = convertToDecimal(val1.split('')),
+        y = convertToDecimal(val2.split('')),
+        xy = convertToDecimal(val1.split(''));
+
+    if (!validateNumeral(x)) {
+        alert(x.join('') + ' is not a valid numeral.');
+        return false;
+    }
+
+    if (!validateNumeral(y)) {
+        alert(y.join('') + ' is not a valid numeral.');
+        return false;
+    }
+
+    x.forEach(function(digit) {
+        var origDigit = digit;
+        if (y.contains(digit)) {
+            xy.splice(xy.lastIndexOf(digit), 1);
+            y.splice(y.lastIndexOf(digit), 1);
+        } else if (!y.length) {
+            
+        } else {
+            xy.splice(xy.lastIndexOf(digit), 1);
+            while (!y.contains(origDigit)) {
+                var borrow = [];
+                for (var i = 0; i < 9; ++i) {
+                    borrow.push(decimals[decimals.indexOf(digit) - 1])
+                }
+                
+                xy = xy.concat(borrow);
+                digit = decimals[decimals.indexOf(digit) - 1];
+                console.log(digit);
+                console.log(origDigit);
+            }
+        }
+    });
+
+    if (!xy.length) {
+        return 'NULLA';
+    }
+
+    return convertToRoman(xy.sort(romanSort)).join('');
+};
+
+addEnteredValues = function() {
+    var x = document.getElementById("val1").value,
+        y = document.getElementById("val2").value;
+
+    document.getElementById("sum").value = addNumeral(x, y);
+    return false;
+};
+
+subtractEnteredValues = function() {
+    var x = document.getElementById("val1").value,
+        y = document.getElementById("val2").value;
+
+    document.getElementById("sum").value = subtractNumeral(x, y);
+    return false;
+};
 
