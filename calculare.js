@@ -94,7 +94,6 @@ validateNumeral = function(numeral) {
     }
 
     return true;
-
 };
 
 convertToDecimal = function(numeral) {
@@ -118,7 +117,7 @@ convertToDecimal = function(numeral) {
 
 convertToRoman = function(numeral) {
     decimals.forEach(function(decimal) {
-        var howMany = numeral.lastIndexOf(decimal) - numeral.indexOf(decimal) + 1;
+        var howMany = (numeral.contains(decimal)) ? numeral.lastIndexOf(decimal) - numeral.indexOf(decimal) + 1 : 0;
 
         if (decimal === decimals[decimals.length - 1]) {
             return numeral;
@@ -131,15 +130,15 @@ convertToRoman = function(numeral) {
             if (howMany >= 10) {
                 numeral.splice(numeral.indexOf(decimal), 10, nextDecimal);
             } else if (howMany === 9) {
-                numeral.splice(numeral.indexOf(decimal), 10, decimal + nextDecimal);
+                numeral.splice(numeral.indexOf(decimal), 9, decimal + nextDecimal);
 
             } else if (howMany >= 5) {
                 numeral.splice(numeral.indexOf(decimal), 5, nextQuinary);
             } else if (howMany === 4) {
-                numeral.splice(numeral.indexOf(decimal), 5, decimal + nextQuinary);
+                numeral.splice(numeral.indexOf(decimal), 4, decimal + nextQuinary);
             }
 
-            howMany = numeral.lastIndexOf(decimal) - numeral.indexOf(decimal) + 1;
+            howMany = (numeral.contains(decimal)) ? numeral.lastIndexOf(decimal) - numeral.indexOf(decimal) + 1 : 0;
 
         }
     });
@@ -182,25 +181,24 @@ subtractNumeral = function(val1, val2) {
         return false;
     }
 
-    x.forEach(function(digit) {
-        var origDigit = digit;
-        if (y.contains(digit)) {
+    y.forEach(function(digit) {
+        if (xy.contains(digit)) {
             xy.splice(xy.lastIndexOf(digit), 1);
-            y.splice(y.lastIndexOf(digit), 1);
-        } else if (!y.length) {
-            
+        } else if (romanSort(digit, xy[0]) === -1) {
+            xy = [];
+            return 'NULLA';
         } else {
-            xy.splice(xy.lastIndexOf(digit), 1);
-            while (!y.contains(origDigit)) {
+            var currentBase = xy[xy.length-1];
+            while (currentBase !== 'NULLA') {
                 var borrow = [];
-                for (var i = 0; i < 9; ++i) {
-                    borrow.push(decimals[decimals.indexOf(digit) - 1])
+                for (var i = 0; i < 10; ++i) {
+                    if (decimals[decimals.indexOf(currentBase) - 1]) {
+                        borrow.push(decimals[decimals.indexOf(currentBase) - 1])
+                    }
                 }
-                
+                xy.splice(xy.indexOf(digit), 1);
                 xy = xy.concat(borrow);
-                digit = decimals[decimals.indexOf(digit) - 1];
-                console.log(digit);
-                console.log(origDigit);
+                currentBase = decimals[decimals.indexOf(currentBase) - 1] || 'NULLA';
             }
         }
     });
